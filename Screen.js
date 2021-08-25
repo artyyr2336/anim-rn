@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/react-in-jsx-scope */
-import React, {useEffect} from 'react';
-import {View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Pressable, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +11,14 @@ import Animated, {
 
 const SIZE = 100;
 
+const handleRotation = (progress) => {
+  'worklet';
+
+  return `${progress.value * 2 * Math.PI}rad`;
+};
+
 export default function AnimatedStyleUpdateExample(props) {
+  const [state, setState] = useState(1);
   const progress = useSharedValue(1);
   const scale = useSharedValue(2);
 
@@ -19,17 +26,14 @@ export default function AnimatedStyleUpdateExample(props) {
     return {
       opacity: progress.value,
       borderRadius: (progress.value * SIZE) / 2,
-      transform: [
-        {scale: scale.value},
-        {rotate: `${progress.value * 2 * Math.PI}rad`},
-      ],
+      transform: [{scale: scale.value}, {rotate: handleRotation(progress)}],
     };
   }, []);
 
   useEffect(() => {
-    progress.value = withRepeat(withSpring(0.5), Infinity, true);
-    scale.value = withRepeat(withSpring(1), Infinity, true);
-  }, []);
+    progress.value = withRepeat(withSpring(0.5), 2, true);
+    scale.value = withRepeat(withSpring(1), 2, true);
+  }, [state]);
 
   return (
     <View
@@ -39,12 +43,14 @@ export default function AnimatedStyleUpdateExample(props) {
         width: '100%',
         alignItems: 'center',
       }}>
-      <Animated.View
-        style={[
-          {height: SIZE, width: SIZE, backgroundColor: 'blue'},
-          reanimatedStyle,
-        ]}
-      />
+      <Pressable onPress={() => setState(state + 1)}>
+        <Animated.View
+          style={[
+            {height: SIZE, width: SIZE, backgroundColor: 'blue'},
+            reanimatedStyle,
+          ]}
+        />
+      </Pressable>
     </View>
   );
 }
